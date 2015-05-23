@@ -43,6 +43,7 @@ localsettings.*
 *.DS_Store
 *.sqlite3
 *.idea
+/demo/staticfiles
 
 # vim and ctags files
 *.swp

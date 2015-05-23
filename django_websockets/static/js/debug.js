@@ -5,8 +5,9 @@ function WebSocketConnection(){
     return;
   }
 
-  log('connecting...');
-  var ws = new WebSocket(django_vars.ws_url);
+  var url = djws.ws_url;
+  log('connecting to "' + url + '" with token "' + djws.token + '"...');
+  var ws = new WebSocket(url, djws.token);
 
   ws.onopen = function(){
     log('connected');
@@ -18,7 +19,8 @@ function WebSocketConnection(){
   };
 
   ws.onclose = function (evt) {
-    log('Connection closed');
+    log('Connection closed, reason: "' + evt.reason + '"');
+    console.log('close event:', evt);
   };
 
   $('#user-input').submit(function (e){

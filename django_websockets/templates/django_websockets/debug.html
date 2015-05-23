@@ -38,11 +38,8 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-    var django_vars = {
-      ws_url: '{{ ws_url }}'
-    }
-  </script>
+  {% load websockets %}
+  {% djws_setup %}
   {% load staticfiles %}
   <script src="{% static 'js/debug.js' %}"></script>
 {% endblock %}
