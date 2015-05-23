@@ -1,0 +1,4 @@
+Django==1.8.2
+certifi==2015.4.28
+colorlog==2.6.0
+tornado==4.1

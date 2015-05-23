@@ -1,0 +1,48 @@
+{% extends 'django_websockets/base.html' %}
+
+{% block extra_head %}
+<style>
+  .section {
+    margin-top: 15px;
+  }
+
+  #console {
+    max-height: 500px;
+    min-height: 200px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div class="section">
+    <button id="open" class="btn btn-default">Open WebSocket</button>
+    <button id="close" class="btn btn-default">Close WebSocket</button>
+  </div>
+  <div class="row section">
+    <div class="col-md-6">
+      <div>
+        <pre id="console"></pre>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <form id="user-input">
+        <div class="form-group">
+          <input type="text" class="form-control" id="message-box" placeholder="send raw message..."/>
+        </div>
+        <div class="form-group">
+          <input type="submit" class="btn btn-default" value="send"/>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    var django_vars = {
+      ws_url: '{{ ws_url }}'
+    }
+  </script>
+  {% load staticfiles %}
+  <script src="{% static 'js/debug.js' %}"></script>
+{% endblock %}
