@@ -5,8 +5,8 @@ from threading import Thread
 from colorlog import ColoredFormatter
 
 import tornado
-import tornado.httpserver
-import tornado.ioloop
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 
 import django
 from django.core.management.base import BaseCommand
@@ -50,9 +50,9 @@ def main(serve_django, port):
                                            os.getenv('DJANGO_SETTINGS_MODULE', 'unknown'),
                                            port))
     app = get_app(serve_django)
-    http_server = tornado.httpserver.HTTPServer(app)
+    http_server = HTTPServer(app)
     http_server.listen(port)
-    main_loop = tornado.ioloop.IOLoop.instance()
+    main_loop = IOLoop.instance()
     # sched = tornado.ioloop.PeriodicCallback(schedule_func, 3000, io_loop=main_loop)
     # sched.start()
     main_loop.start()

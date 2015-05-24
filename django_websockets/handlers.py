@@ -104,6 +104,7 @@ class AuthSocketHandler(AnonSocketHandler):
             return
         token = subprotocols[0]
         if token in {'', 'null'}:
+            # TODO, is there a better code to use?
             self.close(2000, 'permission denied - no token supplied')
             return
         # we have to do this as self.request is pretty flaky about giving up it's attributes
