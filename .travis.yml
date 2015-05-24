@@ -11,4 +11,4 @@ env:
 install:
   - pip install Django==$DJANGO tornado==4.1 --use-mirrors
 
-script: runtests.sh
+script: bash runtests.sh
