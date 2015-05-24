@@ -103,7 +103,8 @@ class BrokenSocketHandler(WebSocketHandler):
     def on_message(self, message):
         # technically this exception is required as all we're testing below is that stop isn't called
         # and therefore wait times out, just not echoing the message would have the same effect
-        raise Exception('intentional test exception')
+        if message == 'raise exception':
+            raise Exception('intentional test exception')
         self.write_message(message)
 
 
@@ -119,12 +120,12 @@ class ServerErrorWebSocketTest(AsyncHTTPTestCase):
     def get_app(self):
         return Application([('/', BrokenSocketHandler)])
 
-    def connect_to_server(self):
+    def connect_to_server(self, message):
         self_test_case = self
 
         class WSClient(WebSocketClient):
             def on_open(self):
-                self.write_message('testing')
+                self.write_message(message)
 
             def on_message(self, data):
                 self_test_case.io_loop.add_callback(self_test_case.stop)
@@ -132,5 +133,9 @@ class ServerErrorWebSocketTest(AsyncHTTPTestCase):
         self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop))
         self.wait(timeout=0.01)
 
-    def test_no_subprotocol(self):
-        self.assertRaises(AssertionError, self.connect_to_server)
+    def test_error(self):
+        self.assertRaises(AssertionError, self.connect_to_server, 'raise exception')
+
+    def test_no_error(self):
+        self.connect_to_server('dont raise exception')
+
