@@ -63,12 +63,12 @@ LOGGING = {
     'formatters': {
         'djws': {
             '()': 'colorlog.ColoredFormatter',
-            'format': '%(log_color)sDJWS [%(asctime)s] %(levelname)-8s %(message)s',
+            'format': '%(log_color)sDJWS [%(asctime)s] %(message)s',
             'datefmt': '%Y-%b-%d %H:%M:%S',
             'reset': True,
             'log_colors': {
-                'DEBUG':    'bold_black',
-                'INFO':     'cyan',
+                'DEBUG':    'cyan',
+                'INFO':     'white',
                 'WARNING':  'yellow',
                 'ERROR':    'red',
                 'CRITICAL': 'bold_red',

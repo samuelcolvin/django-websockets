@@ -2,33 +2,29 @@ import os
 import logging
 from multiprocessing import Process
 from threading import Thread
+from colorlog import ColoredFormatter
 
 import tornado
-import tornado.wsgi
-import tornado.web
 import tornado.httpserver
 import tornado.ioloop
 
-from colorlog import ColoredFormatter
-
 import django
 from django.core.management.base import BaseCommand
-from django.utils.module_loading import import_string
 from django.db import connection
 from django.core.management import call_command
-from django.conf import settings
 
-from django_websockets.handler import SocketHandler
+from django_websockets import settings
+from django_websockets.app import get_app
 
-logger = logging.getLogger('websockets')
+logger = logging.getLogger(settings.LOGGER_NAME)
 if not logger.hasHandlers():
     formatter = ColoredFormatter(
-        '%(log_color)sDJWS [%(asctime)s] %(levelname)-8s %(message)s',
+        '%(log_color)s[%(asctime)s] %(message)s',
         datefmt='%Y-%b-%d %H:%M:%S',
         reset=True,
         log_colors={
-            'DEBUG':    'bold_black',
-            'INFO':     'cyan',
+            'DEBUG':    'cyan',
+            'INFO':     'white',
             'WARNING':  'yellow',
             'ERROR':    'red',
             'CRITICAL': 'bold_red',
@@ -41,38 +37,19 @@ if not logger.hasHandlers():
     logger.addHandler(handler)
 
 
-def describe_handler(handler_def):
-    path = handler_def[0]
-    # this is the least ugly way I can find of getting the dotted path of a class
-    get_class_path = lambda c: str(c).split("'")[1]
-    handler_str = get_class_path(handler_def[1])
-    return '"%s" > %s' % (path, handler_str)
-
-
 def main(serve_django, port):
     if port is None:
         port = os.getenv('PORT')
     if port is None:
         port = 8000 if serve_django else 8001
-    handlers = [('/ws/', SocketHandler)]
-    if serve_django:
-        django_app = import_string(settings.WSGI_APPLICATION)
-        wsgi_app = tornado.wsgi.WSGIContainer(django_app)
-        dj_handler = ('.*', tornado.web.FallbackHandler, {'fallback': wsgi_app})
-        handlers.append(dj_handler)
-    start_message = ('\ndjango-websockets version <TODO>\n'
-                     'Django version %s, Tornado version %s, using settings "%s"\n'
-                     'starting %d handler%s on port %d\n'
-                     'Handlers:\n    '
-                     '%s') % (django.get_version(),
-                              tornado.version,
-                              os.getenv('DJANGO_SETTINGS_MODULE', 'unknown'),
-                              len(handlers),
-                              '' if len(handlers) == 1 else 's',
-                              port,
-                              '\n    '.join(map(describe_handler, handlers)))
-    print(start_message)
-    app = tornado.web.Application(handlers)
+    print(('\ndjango-websockets version %s\n'
+           'Django version %s, Tornado version %s, using settings "%s"\n'
+           'Starting server on port %d') % ('<TODO>',  # TODO
+                                           django.get_version(),
+                                           tornado.version,
+                                           os.getenv('DJANGO_SETTINGS_MODULE', 'unknown'),
+                                           port))
+    app = get_app(serve_django)
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(port)
     main_loop = tornado.ioloop.IOLoop.instance()
