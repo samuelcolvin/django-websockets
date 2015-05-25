@@ -3,11 +3,11 @@ from django.views.generic import TemplateView
 
 
 def index(request):
-    return render_to_response('django_websockets/base.html', {'title': 'index'})
+    return render_to_response('base.html', {'title': 'index'})
 
 
 class DebugView(TemplateView):
-    template_name = 'django_websockets/debug.html'
+    template_name = 'debug.html'
 
     def get_context_data(self, **kwargs):
         kwargs.update(
