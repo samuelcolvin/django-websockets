@@ -37,7 +37,7 @@ def djws_setup(context, *args, **kwargs):
     elif 'view' in context:
         request = context['view'].request
     else:
-        raise Exception('Unable to find request in context')  # TODO and solution suggestion
+        raise Exception('Unable to find request in context')
     # token has to be a string as it's the second argument in js Websocket method
     token = 'anon'
     if request.user.is_authenticated():
@@ -48,7 +48,7 @@ def djws_setup(context, *args, **kwargs):
     )
     setup_ctx = {
         'main_js_variable': settings.MAIN_JS_VARIABLE,
-        'variables': mark_safe(json.dumps(variables))
+        'variables': mark_safe(json.dumps(variables, sort_keys=True))
     }
     logger.debug(setup_ctx)
     return setup_ctx

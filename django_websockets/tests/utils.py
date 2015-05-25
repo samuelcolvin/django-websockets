@@ -97,7 +97,7 @@ Sec-WebSocket-Protocol: %(subprotocol)s\
 """
 
 
-class WebSocketClient(object):
+class WebSocketClient(object):  # pragma: no cover
     """
     Taken from https://github.com/jbalogh/tornado-websocket-client/blob/master/websocket.py
     and modified to work with tornado 4 and python 3, subprotocol also added. Thank you.

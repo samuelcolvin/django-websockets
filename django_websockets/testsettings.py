@@ -11,6 +11,8 @@ TEMPLATE_DEBUG = DEBUG = True
 
 WSGI_APPLICATION = 'django_websockets.tests.wsgi.application'
 
+ROOT_URLCONF = 'django_websockets.tests.test_views'
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',

@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^$', 'demoapp.views.index', name='index'),
-    url(r'^djws/', include('django_websockets.urls', namespace='djws')),
+    url(r'^debug/$', 'demoapp.viewsdebug_view', name='debug'),
     url(r'^admin/', include(admin.site.urls)),
 ]
 
