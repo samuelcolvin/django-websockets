@@ -8,7 +8,7 @@ WSGI_APPLICATION = settings.WSGI_APPLICATION
 # dictates how long after a websocket authentication token has been generated it will expire
 TOKEN_VALIDITY_SECONDS = getattr(settings, 'TOKEN_VALIDITY_SECONDS', 86400)
 
-LOGGER_NAME = getattr(settings, 'DJWS_LOGGER_NAME', 'websockets')
+WS_LOGGER_NAME = getattr(settings, 'WS_LOGGER_NAME', 'websockets')
 
 # URL of websocket connection, if None it's obtained from the domain and path below
 WS_URL = getattr(settings, 'WS_URL', None)

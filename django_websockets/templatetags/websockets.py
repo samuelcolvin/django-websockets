@@ -8,7 +8,7 @@ from ..tokens import make_token
 
 register = template.Library()
 
-logger = logging.getLogger(settings.LOGGER_NAME)
+logger = logging.getLogger(settings.WS_LOGGER_NAME)
 
 
 def get_ws_url(request):

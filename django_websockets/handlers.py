@@ -8,7 +8,7 @@ import tornado.websocket
 from .tokens import check_token_get_user
 from . import settings
 
-logger = logging.getLogger(settings.LOGGER_NAME)
+logger = logging.getLogger(settings.WS_LOGGER_NAME)
 
 
 class AllClients(object):

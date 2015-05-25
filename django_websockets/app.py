@@ -1,13 +1,10 @@
 import logging
-
 import tornado.wsgi
 import tornado.web
-
 from django.utils.module_loading import import_string
-
 from . import settings
 
-logger = logging.getLogger(settings.LOGGER_NAME)
+logger = logging.getLogger(settings.WS_LOGGER_NAME)
 
 
 def convert_handler_definition(uri, h_str, *args):
@@ -33,13 +30,16 @@ def get_app(serve_django):
     handlers = [convert_handler_definition(*hd) for hd in settings.WS_HANDLERS]
 
     if serve_django:
+        assert settings.WSGI_APPLICATION is not None, 'WSGI_APPLICATION maybe not be None or ommitted'
         django_app = import_string(settings.WSGI_APPLICATION)
         wsgi_app = tornado.wsgi.WSGIContainer(django_app)
         dj_handler = ('.*', tornado.web.FallbackHandler, {'fallback': wsgi_app})
         handlers.append(dj_handler)
 
     # log summary of handlers being started
-    logger.info('Creating tornado application, with the following handlers:')
+    no_handlers = len(handlers)
+    s = '' if no_handlers == 1 else 's'
+    logger.info('Creating tornado application, with the %d handler%s:', no_handlers, s)
     for h in handlers:
         logger.info('  %s', describe_handler_def(h))
     tornado_settings = dict(

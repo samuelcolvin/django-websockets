@@ -1,3 +1,5 @@
+import sys
+import io
 import array
 import string
 import random
@@ -9,11 +11,9 @@ import struct
 import time
 from urllib.parse import urlparse
 
-import tornado.escape
 from tornado import iostream
 from tornado.httputil import HTTPHeaders
 from tornado.testing import AsyncHTTPTestCase
-from tornado.util import bytes_type
 from tornado.websocket import WebSocketProtocol13
 
 random = random.SystemRandom()
@@ -41,6 +41,48 @@ class AsyncHTTPTestCaseExtra(AsyncHTTPTestCase):
             elif len(args) == 3:
                 args = (args[0], args[1], '%s: %s' % (msg, args[2]))
             self.assertEqual(*args)
+
+
+class CaptureStd(object):
+    _captured = ''
+
+    def __init__(self, capture_stdout=True, capture_stderr=False):
+        self._capture_stdout = capture_stdout
+        self._capture_stderr = capture_stderr
+
+    def __enter__(self):
+        self._log = io.StringIO()
+        if self._capture_stderr:
+            self._orig_stderr = sys.stderr
+            sys.stderr = self
+        if self._capture_stdout:
+            self._orig_stdout = sys.stdout
+            sys.stdout = self
+        return self
+
+    def write(self, data):
+        self._log.write(data)
+
+    def flush(self):
+        pass
+
+    def __exit__(self, ex_type, ex_value, tb):
+        if self._capture_stdout:
+            sys.stdout = self._orig_stdout
+        if self._capture_stderr:
+            sys.stderr = self._orig_stderr
+        self._captured = self._log.getvalue()
+        self._log.close()
+
+    @property
+    def captured(self):
+        return self._captured
+
+    def __str__(self):
+        return self._captured
+
+    def __repr__(self):
+        return '<CaptureStd: %r>' % self._captured
 
 
 # The initial handshake over HTTP.
@@ -121,8 +163,8 @@ class WebSocketClient(object):
             opcode = 0x2
         else:
             opcode = 0x1
-        message = tornado.escape.utf8(message)
-        assert isinstance(message, bytes_type)
+        message = message.encode('utf-8')
+        assert isinstance(message, bytes)
         self._write_frame(opcode, message)
 
     def ping(self):
@@ -185,7 +227,7 @@ class WebSocketClient(object):
         if self.headers is not None:
             request += '\r\n' + self.headers
         request += '\r\n\r\n'
-        self.stream.write(tornado.escape.utf8(request))
+        self.stream.write(request.encode('utf-8'))
         self.stream.read_until(b'\r\n\r\n', self._on_headers)
 
     def _on_headers(self, data):

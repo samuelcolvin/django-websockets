@@ -9,6 +9,8 @@ SECRET_KEY = 'django-websockets'
 
 TEMPLATE_DEBUG = DEBUG = True
 
+WSGI_APPLICATION = 'django_websockets.tests.wsgi.application'
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
