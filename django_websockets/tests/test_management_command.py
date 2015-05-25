@@ -29,11 +29,11 @@ class ManagementCommandTestCase(TestCase):
         self.logger.removeHandler(self.handler)
         self.handler.close()
 
-    @patch('django_websockets.management.commands.websockets._start_loop')
-    def test_cmd_vanilla(self, io_loop_start):
+    @patch('django_websockets.management.commands.websockets._start_server')
+    def test_cmd_vanilla(self, man_start_server):
         with CaptureStd() as std:
             call_command('websockets')
-        self.assertTrue(io_loop_start.called)
+        self.assertTrue(man_start_server.called)
         # avoid messing with versions by only checking beginning and end
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
         self.assertIn('"django_websockets.testsettings"\nStarting server on port 8000\n', std.captured)
@@ -43,11 +43,11 @@ class ManagementCommandTestCase(TestCase):
                                '  "/ws/" > django_websockets.handlers.AnonEchoHandler\n'
                                '  ".*" > tornado.web.FallbackHandler\n')
 
-    @patch('django_websockets.management.commands.websockets._start_loop')
-    def test_cmd_nodjango(self, io_loop_start):
+    @patch('django_websockets.management.commands.websockets._start_server')
+    def test_cmd_nodjango(self, man_start_server):
         with CaptureStd() as std:
             call_command('websockets', '--nodjango')
-            self.assertTrue(io_loop_start.called)
+            self.assertTrue(man_start_server.called)
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
         self.assertIn('"django_websockets.testsettings"\nStarting server on port 8001\n', std.captured)
 
@@ -55,11 +55,11 @@ class ManagementCommandTestCase(TestCase):
         self.assertEqual(logs, 'Creating tornado application, with the 1 handler:\n'
                                '  "/ws/" > django_websockets.handlers.AnonEchoHandler\n')
 
-    @patch('django_websockets.management.commands.websockets._start_loop')
-    def test_cmd_different_port(self, io_loop_start):
+    @patch('django_websockets.management.commands.websockets._start_server')
+    def test_cmd_different_port(self, man_start_server):
         with CaptureStd() as std:
             call_command('websockets', '--port', '9876')
-        self.assertTrue(io_loop_start.called)
+        self.assertTrue(man_start_server.called)
         # avoid messing with versions by only checking beginning and end
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
         self.assertIn('"django_websockets.testsettings"\nStarting server on port 9876\n', std.captured)
@@ -70,11 +70,11 @@ class ManagementCommandTestCase(TestCase):
                                '  ".*" > tornado.web.FallbackHandler\n')
 
     @patch('django_websockets.management.commands.websockets._start_runserver_process')
-    @patch('django_websockets.management.commands.websockets._start_loop')
-    def test_cmd_runserver(self, io_loop_start, runserver):
+    @patch('django_websockets.management.commands.websockets._start_server')
+    def test_cmd_runserver(self, man_start_server, runserver):
         with CaptureStd() as std:
             call_command('websockets', '--runserver')
-        self.assertTrue(io_loop_start.called)
+        self.assertTrue(man_start_server.called)
         self.assertTrue(runserver.called)
         # avoid messing with versions by only checking beginning and end
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))

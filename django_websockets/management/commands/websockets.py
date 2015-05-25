@@ -52,15 +52,15 @@ def main(serve_django, port, verbosity=1):
                                                 port))
     app = get_app(serve_django)
     http_server = HTTPServer(app)
+    _start_server(http_server)
+
+
+def _start_server(http_server):
+    # split out to allow mocking
     http_server.listen(port)
     main_loop = IOLoop.instance()
     # sched = tornado.ioloop.PeriodicCallback(schedule_func, 3000, io_loop=main_loop)
     # sched.start()
-    _start_loop(main_loop)
-
-
-def _start_loop(loop):  # pragma: no cover
-    # split out to allow mocking
     loop.start()
 
 
