@@ -32,23 +32,28 @@ class AllClients(object):
         below this is returned as an iterator.
         :return: client iterator
         """
-        return iter(self._clients)
+        return self._clients
 
     @property
     def auth_clients(self):
         """
         Clients who are authenticated, eg. handlers with a user
-        :return: client iterator
+        :return: list of clients
         """
-        return filter(attrgetter('user'), self._clients)
+        return list(filter(attrgetter('user'), self._clients))
 
     @property
     def anon_clients(self):
         """
         Clients who are anonymous, eg. handlers with no user
-        :return: client iterator
+        :return: list of clients
         """
-        return filterfalse(attrgetter('user'), self._clients)
+        return list(filterfalse(attrgetter('user'), self._clients))
+
+    def __str__(self):
+        return 'AllClients: %d auth, %d anon, %d total' % (len(self.auth_clients),
+                                                           len(self.anon_clients),
+                                                           len(self._clients))
 
 # singleton containing list of all clients/handlers connected to this server.
 all_clients = AllClients()

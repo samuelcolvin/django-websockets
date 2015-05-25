@@ -1,5 +1,9 @@
-import os
-BASE_DIR = os.path.dirname(__file__)
+import sys
+import logging
+TESTING = 'test' in sys.argv
+
+if TESTING:
+    logging.disable(logging.CRITICAL)
 
 SECRET_KEY = 'django-websockets'
 
@@ -25,7 +29,7 @@ MIDDLEWARE_CLASSES = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': ':memory:',
     }
 }
 
@@ -49,3 +53,45 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = ()
 STATIC_ROOT = 'staticfiles'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'djws': {
+            '()': 'colorlog.ColoredFormatter',
+            'format': '%(log_color)sDJWS [%(asctime)s] %(message)s',
+            'datefmt': '%Y-%b-%d %H:%M:%S',
+            'reset': True,
+            'log_colors': {
+                'DEBUG':    'cyan',
+                'INFO':     'white',
+                'WARNING':  'yellow',
+                'ERROR':    'red',
+                'CRITICAL': 'bold_red',
+            },
+        }
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            # 'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'djws'
+        },
+    },
+    'loggers': {
+        'websockets': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}
+

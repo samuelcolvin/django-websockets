@@ -135,7 +135,9 @@ class WebSocketClient(object):
         self._write_frame(True, 0x9, '')
 
     def close(self):
-        """Closes the WebSocket connection."""
+        """
+        Closes the WebSocket connection.
+        """
         if not self.server_terminated:
             if not self.stream.closed():
                 self._write_frame(True, 0x8, '')
@@ -145,11 +147,12 @@ class WebSocketClient(object):
                 self.stream.io_loop.remove_timeout(self._waiting)
                 self._waiting = None
             self.stream.close()
+            # TODO is this the right place to call on_close?
+            self.on_close()
         elif self._waiting is None:
             # Give the client a few seconds to complete a clean shutdown,
             # otherwise just close the connection.
-            self._waiting = self.stream.io_loop.add_timeout(
-                time.time() + 5, self._abort)
+            self._waiting = self.stream.io_loop.add_timeout(time.time() + 5, self._abort)
 
     def _write_frame(self, fin, opcode, data):
         self.stream.write(frame(data, opcode))

@@ -4,11 +4,10 @@ Test that utils.WebSocketClient and successfully connect to tornado and exchange
 No actual testing of django-websockets is performed here.
 """
 import json
-import logging
 from functools import partial
 
 from tornado.web import Application, RequestHandler
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, LogTrapTestCase
 from tornado.websocket import WebSocketHandler
 
 from .utils import WebSocketClient
@@ -108,15 +107,7 @@ class BrokenSocketHandler(WebSocketHandler):
         self.write_message(message)
 
 
-class ServerErrorWebSocketTest(AsyncHTTPTestCase):
-    def setUp(self):
-        logging.disable(logging.CRITICAL)
-        super(ServerErrorWebSocketTest, self).setUp()
-
-    def tearDown(self):
-        super(ServerErrorWebSocketTest, self).tearDown()
-        logging.disable(logging.NOTSET)
-
+class ServerErrorWebSocketTest(AsyncHTTPTestCase, LogTrapTestCase):
     def get_app(self):
         return Application([('/', BrokenSocketHandler)])
 
