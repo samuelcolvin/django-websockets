@@ -10,7 +10,7 @@ env:
   - DJANGO=1.8 TORNADO==4.1
 
 install:
-  - pip install Django==$DJANGO tornado==$TORNADO colorlog
+  - pip install Django==$DJANGO tornado==$TORNADO colorlog coveralls
 
 script: bash runtests.sh
 
