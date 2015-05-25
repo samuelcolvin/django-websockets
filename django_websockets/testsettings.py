@@ -3,7 +3,7 @@ import logging
 TESTING = 'test' in sys.argv
 
 if TESTING:
-    logging.disable(logging.CRITICAL)
+    logging.disable(logging.DEBUG)
 
 SECRET_KEY = 'django-websockets'
 

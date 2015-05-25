@@ -138,6 +138,7 @@ class WebSocketClient(object):
         """
         Closes the WebSocket connection.
         """
+        # TODO would be good to be able to show provide code and reason here
         if not self.server_terminated:
             if not self.stream.closed():
                 self._write_frame(True, 0x8, '')
