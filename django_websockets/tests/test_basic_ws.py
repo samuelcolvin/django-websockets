@@ -10,7 +10,7 @@ from tornado.web import Application, RequestHandler
 from tornado.testing import AsyncHTTPTestCase, LogTrapTestCase
 from tornado.websocket import WebSocketHandler
 
-from .utils import WebSocketClient
+from .utils import WebSocketClient, AsyncHTTPTestCaseExtra
 
 
 class EchoWebSocketHandler(WebSocketHandler):
@@ -23,7 +23,7 @@ class SimpleHandler(RequestHandler):
         self.write('hello'.encode('utf-8'))
 
 
-class SimpleWebSocketTest(AsyncHTTPTestCase):
+class SimpleWebSocketTest(AsyncHTTPTestCaseExtra):
     def get_app(self):
         return Application([
             ('/', SimpleHandler),
@@ -43,11 +43,31 @@ class SimpleWebSocketTest(AsyncHTTPTestCase):
                 self.write_message('hello')
 
             def on_message(self, data):
-                self_test_case.assertEquals(data, 'hello')
+                self_test_case.delayed_assertions.append((data, 'hello'))
                 self_test_case.io_loop.add_callback(self_test_case.stop)
 
         self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop))
         self.wait()
+
+    def _test_echo_assertion_error(self):
+        self_test_case = self
+
+        class WSClient(WebSocketClient):
+            def on_open(self):
+                self.write_message('hello')
+
+            def on_message(self, data):
+                self_test_case.delayed_assertions.append((data, 'not hello'))
+                self_test_case.io_loop.add_callback(self_test_case.stop)
+
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop))
+        self.wait()
+        self.delayed_assertion_check()  # this is normally called on tearDown, but calling it here to get error now
+
+    def test_echo_assertion_error(self):
+        self.assertRaises(Exception, self._test_echo_assertion_error)
+        # reset delay_assertions so we don't get the error on tearDown of this test
+        self.delayed_assertions = []
 
 
 class GetSubprotocolSocketHandler(WebSocketHandler):
@@ -65,7 +85,7 @@ class GetSubprotocolSocketHandler(WebSocketHandler):
         return self.subp
 
 
-class SubprotocolWebSocketTest(AsyncHTTPTestCase):
+class SubprotocolWebSocketTest(AsyncHTTPTestCaseExtra):
     def get_app(self):
         return Application([('/', GetSubprotocolSocketHandler)])
 
@@ -77,7 +97,7 @@ class SubprotocolWebSocketTest(AsyncHTTPTestCase):
                 self.write_message('testing')
 
             def on_message(self, data):
-                self_test_case.assertEquals(json.loads(data), {'message': 'testing', 'subprotocol': ''})
+                self_test_case.delayed_assertions.append((json.loads(data), {'message': 'testing', 'subprotocol': ''}))
                 self_test_case.io_loop.add_callback(self_test_case.stop)
 
         self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop))
@@ -91,7 +111,8 @@ class SubprotocolWebSocketTest(AsyncHTTPTestCase):
                 self.write_message('testing')
 
             def on_message(self, data):
-                self_test_case.assertEquals(json.loads(data), {'message': 'testing', 'subprotocol': 'sub-proto'})
+                self_test_case.delayed_assertions.append((json.loads(data),
+                                                         {'message': 'testing', 'subprotocol': 'sub-proto'}))
                 self_test_case.io_loop.add_callback(self_test_case.stop)
 
         self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, 'sub-proto'))

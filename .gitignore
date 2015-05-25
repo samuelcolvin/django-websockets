@@ -44,6 +44,7 @@ localsettings.*
 *.sqlite3
 *.idea
 /demo/staticfiles
+/django_websockets/local_testsettings.py
 
 # vim and ctags files
 *.swp

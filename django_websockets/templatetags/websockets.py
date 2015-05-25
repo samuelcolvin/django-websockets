@@ -39,7 +39,7 @@ def djws_setup(context, *args, **kwargs):
     else:
         raise Exception('Unable to find request in context')  # TODO and solution suggestion
     # token has to be a string as it's the second argument in js Websocket method
-    token = 'null'
+    token = 'anon'
     if request.user.is_authenticated():
         token = make_token(request.user, get_request_ip(request))
     variables = dict(

@@ -3,7 +3,7 @@ import logging
 TESTING = 'test' in sys.argv
 
 if TESTING:
-    logging.disable(logging.DEBUG)
+    logging.disable(logging.WARN)
 
 SECRET_KEY = 'django-websockets'
 
@@ -95,3 +95,7 @@ LOGGING = {
     }
 }
 
+try:
+    from .local_testsettings import *
+except ImportError:
+    pass

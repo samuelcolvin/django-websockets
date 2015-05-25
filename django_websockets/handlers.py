@@ -63,17 +63,18 @@ class AnonSocketHandler(tornado.websocket.WebSocketHandler):
     """
     Child of tornado.websocket.WebSocketHandler, makes the following changes:
     * allow cross origin requests if DEBUG is true so dev separate servers can be used to run django and tornado ws.
-    * store all handlers in HANDLERS to allow easy communication between different websockets.
+    * store all handlers in AllClients to allow easy communication between different websockets.
     """
-    # user is never used in this class, it's included here for easy filtering of HANDLERS based on
-    # whether they are authenticated eg
+    # user is never used in this class, it's included here for easy filtering of AllClients based on user value
     user = None
+    _client_added = False
+    _connection_allowed = True
 
     def select_subprotocol(self, subprotocols):
         logger.debug('subprotocols: %r', subprotocols)
         if subprotocols:
             # this is required to accept connection from authenticated users where the auth token
-            # is supplied as a subprotool, see below
+            # is supplied as a subprotocol, see below
             return subprotocols[0]
 
     def check_origin(self, origin):
@@ -88,12 +89,18 @@ class AnonSocketHandler(tornado.websocket.WebSocketHandler):
         return super(AnonSocketHandler, self).check_origin(origin)
 
     def open(self):
-        logger.debug('new connection')
-        all_clients.append(self)
+        logger.debug('new connection, allowed: %r, client added: %r', self._connection_allowed, self._client_added)
+        if self._connection_allowed:
+            all_clients.append(self)
+            self._client_added = True
+
+    def close(self, code=None, reason=None):
+        logger.debug('closing connection, close code: %r, close reason: %r', code, reason)
+        return super(AnonSocketHandler, self).close(code, reason)
 
     def on_close(self):
         logger.debug('client disconnected, close code: %r, close reason: %r', self.close_code, self.close_reason)
-        all_clients.remove(self)
+        all_clients.remove(self, not self._client_added)
 
 
 class AuthSocketHandler(AnonSocketHandler):
@@ -101,6 +108,7 @@ class AuthSocketHandler(AnonSocketHandler):
     Child of AnonSocketHandler and therefore tornado.websocket.WebSocketHandler which authenticates
     the client via a token passed via a subprotocol.
     """
+    _connection_allowed = False
 
     def select_subprotocol(self, subprotocols):
         logger.debug('subprotocols: %r', subprotocols)
@@ -108,20 +116,24 @@ class AuthSocketHandler(AnonSocketHandler):
             self.close(1002, 'exactly one sub-protocol should be provided')
             return
         token = subprotocols[0]
-        if token in {'', 'null'}:
+        if token == '':
             # TODO, is there a better code to use?
             self.close(2000, 'permission denied - no token supplied')
             return
+        if token in {'null', 'anon'}:
+            # TODO, is there a better code to use?
+            self.close(2001, 'permission denied - anonymous users not permitted to connect to this socket')
         # we have to do this as self.request is pretty flaky about giving up it's attributes
         # TODO fix or submit issue to tornado
         request_dict = vars(self.request)
         ip_address = request_dict['remote_ip']
         user = check_token_get_user(ip_address, token)
         if not user:
-            self.close(2001, 'permission denied - invalid token')
+            self.close(2002, 'permission denied - invalid token')
             return
-        logger.debug('new connection from %s at %s' % (user, ip_address))
+        logger.debug('new valid connection from %s at %s' % (user, ip_address))
         self.user = user
+        self._connection_allowed = True
         return token
 
 
@@ -132,6 +144,9 @@ class PingPongMixin(object):
     Override pong_time_handler to do something with the time found (in ms).
     """
     def ping_timer(self):
+        if not self.ws_connection or self.ws_connection.client_terminated:
+            logger.warn('ws connection terminated, not checking ping time')
+            return
         t = bytes(str(time.time()), 'ascii')
         self.ping(t)
 
@@ -144,8 +159,24 @@ class PingPongMixin(object):
 
 
 class AnonEchoHandler(PingPongMixin, AnonSocketHandler):
+    """
+    simple echo handler with no authentication, provided for testing and to help initial setup
+    """
     def open(self):
         super(AnonEchoHandler, self).open()
+        self.ping_timer()
+
+    def on_message(self, data):
+        logger.info('received message: %r' % data)
+        self.write_message(data)
+
+
+class AuthEchoHandler(PingPongMixin, AuthSocketHandler):
+    """
+    simple echo handler with authentication, provided for testing and to help initial setup
+    """
+    def open(self):
+        super(AuthEchoHandler, self).open()
         self.ping_timer()
 
     def on_message(self, data):
