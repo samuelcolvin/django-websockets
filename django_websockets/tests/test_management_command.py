@@ -17,6 +17,7 @@ class ManagementCommandTestCase(TestCase):
         super(ManagementCommandTestCase, self).setUp()
         self.logger = logging.getLogger(settings.WS_LOGGER_NAME)
         self.logger.setLevel(logging.DEBUG)
+        logging.disable(logging.NOTSET)
         # self.logger.propagate = False
         self.stream = io.StringIO()
         self.handler = logging.StreamHandler(self.stream)
