@@ -43,6 +43,13 @@ class LowLevelAuthTestCase(TestCase):
         wrong_token = '%s-%s-%s' % (secs, int_to_base36(user.id + 42), hash)
         self.assertFalse(check_token_get_user(wrong_token, self.ip))
 
+    def test_invalid_base64_token(self):
+        user = User.objects.create_user('testing', email='testing@example.com')
+        token = make_token(user, self.ip)
+        secs, uid, hash = token.split('-')
+        wrong_token = '%s-%s-%s' % (secs, '@;[]_+.', hash)
+        self.assertFalse(check_token_get_user(wrong_token, self.ip))
+
     def test_ip_change_token(self):
         user = User.objects.create_user('testing', email='testing@example.com')
         token = make_token(user, self.ip)
