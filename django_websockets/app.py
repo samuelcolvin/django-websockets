@@ -7,14 +7,17 @@ from . import settings
 logger = logging.getLogger(settings.WS_LOGGER_NAME)
 
 
-def convert_handler_definition(uri, h_str, *args):
+def convert_handler_definition(uri, handler, *args):
     """
-    Just evaluate the second argument of a handler definition with import_string and return
+    Evaluate the second argument of a handler definition with import_string if necessary, otherwise
+    tuple is left unchanged.
     """
-    return (uri, import_string(h_str)) + args
+    if isinstance(handler, str):
+        handler = import_string(handler)
+    return (uri, handler) + args
 
 
-def describe_handler_def(handler_def):
+def describe_handler(handler_def):
     """
     Fairly ugly attempt to describe a tornado handler definition.
     :return: string describing handler
@@ -26,11 +29,11 @@ def describe_handler_def(handler_def):
     return '"%s" > %s' % (path, handler_str)
 
 
-def get_app(serve_django):
-    handlers = [convert_handler_definition(*hd) for hd in settings.WS_HANDLERS]
+def get_app(serve_django, handler_defs=settings.WS_HANDLERS):
+    handlers = [convert_handler_definition(*hd) for hd in handler_defs]
 
     if serve_django:
-        assert settings.WSGI_APPLICATION is not None, 'WSGI_APPLICATION maybe not be None or ommitted'
+        assert settings.WSGI_APPLICATION is not None, 'WSGI_APPLICATION maybe not be None or omitted'
         django_app = import_string(settings.WSGI_APPLICATION)
         wsgi_app = tornado.wsgi.WSGIContainer(django_app)
         dj_handler = ('.*', tornado.web.FallbackHandler, {'fallback': wsgi_app})
@@ -41,7 +44,7 @@ def get_app(serve_django):
     s = '' if no_handlers == 1 else 's'
     logger.info('Creating tornado application, with the %d handler%s:', no_handlers, s)
     for h in handlers:
-        logger.info('  %s', describe_handler_def(h))
+        logger.info('  %s', describe_handler(h))
     tornado_settings = dict(
         debug=settings.DEBUG
     )

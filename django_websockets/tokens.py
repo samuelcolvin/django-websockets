@@ -18,15 +18,20 @@ def make_token(user, ip_address):
     """
     Returns a token that can be used once to do a password reset
     for the given user.
+    :param: use to generate token for
+    :param: ip_address of user's client
+    :return: new token
     """
-    return _make_token_with_timestamp(user, ip_address, _num_seconds(datetime.now()))
+    return _make_token_with_timestamp(user, ip_address, _secs_since_2015())
 
 
-def check_token_get_user(ip_address, token):
+def check_token_get_user(token, ip_address):
     """
     Check that a websocket token is valid for a given ip_address.
 
-    :return: user instance
+    :param: token to check
+    :param: ip_address of client
+    :return: user instance or False if invalid token
     """
     # Parse the token
     try:
@@ -50,7 +55,7 @@ def check_token_get_user(ip_address, token):
         return False
 
     # Check the timestamp is within limit
-    if (_num_seconds(datetime.now()) - ts) > settings.TOKEN_VALIDITY_SECONDS:
+    if (_secs_since_2015() - ts) > settings.TOKEN_VALIDITY_SECONDS:
         return False
     return user
 
@@ -71,6 +76,15 @@ def _make_token_with_timestamp(user, ip_address, timestamp):
     return '%s-%s-%s' % (ts_b36, uid_b36, hash)
 
 
-def _num_seconds(dt):
-    time_diff = dt - datetime(2015, 1, 1)
+def _secs_since_2015():
+    time_diff = _now() - datetime(2015, 1, 1)
     return int(time_diff.total_seconds())
+
+
+def _now():
+    """
+    wrap datetime.datetime.now() to allow mocking
+
+    :return: datetime
+    """
+    return datetime.now()

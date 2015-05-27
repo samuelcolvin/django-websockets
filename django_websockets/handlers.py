@@ -127,7 +127,7 @@ class AuthSocketHandler(AnonSocketHandler):
         # TODO fix or submit issue to tornado
         request_dict = vars(self.request)
         ip_address = request_dict['remote_ip']
-        user = check_token_get_user(ip_address, token)
+        user = check_token_get_user(token, ip_address)
         if not user:
             self.close(2002, 'permission denied - invalid token')
             return
