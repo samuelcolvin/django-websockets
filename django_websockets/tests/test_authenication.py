@@ -3,8 +3,6 @@ from django_websockets.tokens import make_token
 from functools import partial
 
 from tornado.web import Application
-from tornado.testing import AsyncHTTPTestCase
-from tornado.websocket import WebSocketHandler
 
 from django.test import TestCase
 from django.contrib.auth.models import User

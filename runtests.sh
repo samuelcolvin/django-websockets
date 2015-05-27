@@ -10,3 +10,5 @@ export ASYNC_TEST_TIMEOUT="1"
 export DJANGO_SETTINGS_MODULE="django_websockets.testsettings"
 export PYTHONPATH=.
 time coverage run --source=django_websockets $django_admin test $test_path
+
+flake8 django_websockets/ --max-line-length 120

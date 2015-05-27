@@ -150,4 +150,3 @@ class ServerErrorWebSocketTest(AsyncHTTPTestCase, LogTrapTestCase):
 
     def test_no_error(self):
         self.connect_to_server('dont raise exception')
-

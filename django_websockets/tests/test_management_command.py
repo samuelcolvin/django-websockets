@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django_websockets import settings
 
 # we have to import this now to avoid it message with loggers during tests
-import django_websockets.tests.wsgi
+import django_websockets.tests.wsgi  # flake8: noqa
 from .utils import CaptureStd
 
 

@@ -182,5 +182,3 @@ class AuthEchoHandler(PingPongMixin, AuthSocketHandler):
     def on_message(self, data):
         logger.info('received message: %r' % data)
         self.write_message(data)
-
-

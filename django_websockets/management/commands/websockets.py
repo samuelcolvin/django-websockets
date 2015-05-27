@@ -1,7 +1,6 @@
 import os
 import logging
 from multiprocessing import Process
-from threading import Thread
 from colorlog import ColoredFormatter
 
 import tornado
@@ -52,16 +51,16 @@ def main(serve_django, port, verbosity=1):
                                                 port))
     app = get_app(serve_django)
     http_server = HTTPServer(app)
-    _start_server(http_server)
+    _start_server(http_server, port)
 
 
-def _start_server(http_server):
+def _start_server(http_server, port):
     # split out to allow mocking
     http_server.listen(port)
     main_loop = IOLoop.instance()
     # sched = tornado.ioloop.PeriodicCallback(schedule_func, 3000, io_loop=main_loop)
     # sched.start()
-    loop.start()
+    main_loop.start()
 
 
 def _start_runserver_process(verbosity):  # pragma: no cover

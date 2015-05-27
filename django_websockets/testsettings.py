@@ -100,6 +100,6 @@ LOGGING = {
 }
 
 try:
-    from .local_testsettings import *
+    from .local_testsettings import *  # flake8: noqa
 except ImportError:
     pass
