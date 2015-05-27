@@ -19,7 +19,7 @@ from tornado.websocket import WebSocketProtocol13
 random = random.SystemRandom()
 
 
-class AsyncHTTPTestCaseExtra(AsyncHTTPTestCase):
+class AsyncHTTPTestCaseExtra(AsyncHTTPTestCase):  # pragma: no cover
     def setUp(self):
         super(AsyncHTTPTestCaseExtra, self).setUp()
         self.delayed_assertions = []
@@ -43,7 +43,7 @@ class AsyncHTTPTestCaseExtra(AsyncHTTPTestCase):
             self.assertEqual(*args)
 
 
-class CaptureStd(object):
+class CaptureStd(object):  # pragma: no cover
     _captured = ''
 
     def __init__(self, capture_stdout=True, capture_stderr=False):

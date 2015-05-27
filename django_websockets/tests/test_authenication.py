@@ -131,6 +131,7 @@ class AnonHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
                     (len(all_clients.all_clients), 1),
                     (len(all_clients.anon_clients), 1),
                     (len(all_clients.auth_clients), 0),
+                    (str(all_clients), 'AllClients: 0 auth, 1 anon, 1 total')
                 ])
                 test_case.ws_close_properly = True
                 self.close()
@@ -160,9 +161,6 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
         test_case = self
 
         class WSClient(WebSocketClient):
-            def on_open(self):
-                self.write_message('hello')
-
             def on_close(self, code=None, reason=None):
                 test_case.delayed_assertions.extend([
                     (code, 2001),
@@ -179,6 +177,30 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
         test_case.assertEqual(len(all_clients.anon_clients), 0)
         test_case.assertEqual(len(all_clients.auth_clients), 0)
 
+    def test_no_subprotocol_client(self):
+        """
+        anonymous user (no subprotocol) connecting to auth socket, should be permission denied
+        """
+        self.assertEqual(User.objects.count(), 0)
+        test_case = self
+
+        class WSClient(WebSocketClient):
+            def on_close(self, code=None, reason=None):
+                test_case.delayed_assertions.extend([
+                    (code, 2001),
+                    (reason, 'permission denied - anonymous users not permitted to connect to this socket'),
+                    (len(all_clients.all_clients), 0),
+                    (len(all_clients.anon_clients), 0),
+                    (len(all_clients.auth_clients), 0),
+                ])
+                test_case.io_loop.add_callback(test_case.stop)
+
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop))
+        self.wait()
+        test_case.assertEqual(len(all_clients.all_clients), 0)
+        test_case.assertEqual(len(all_clients.anon_clients), 0)
+        test_case.assertEqual(len(all_clients.auth_clients), 0)
+
     def test_bad_client(self):
         """
         client with bad token connecting to auth socket, should be permission denied
@@ -187,9 +209,6 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
         test_case = self
 
         class WSClient(WebSocketClient):
-            def on_open(self):
-                self.write_message('hello')
-
             def on_close(self, code=None, reason=None):
                 test_case.delayed_assertions.extend([
                     (code, 2002),
