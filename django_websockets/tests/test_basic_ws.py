@@ -121,7 +121,7 @@ class SubprotocolWebSocketTest(AsyncHTTPTestCaseExtra):
 
 class BrokenSocketHandler(WebSocketHandler):
     def on_message(self, message):
-        # technically this exception is required as all we're testing below is that stop isn't called
+        # technically this exception isn't required as all we're testing below is that stop isn't called
         # and therefore wait times out, just not echoing the message would have the same effect
         if message == 'raise exception':
             raise Exception('intentional test exception')
