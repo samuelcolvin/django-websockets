@@ -37,7 +37,7 @@ class ManagementCommandTestCase(TestCase):
         self.assertTrue(man_start_server.called)
         # avoid messing with versions by only checking beginning and end
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
-        self.assertIn('"django_websockets.testsettings"\nStarting server on port 8000\n', std.captured)
+        self.assertIn('"django_websockets.tests.settings"\nStarting server on port 8000\n', std.captured)
 
         logs = self.stream.getvalue()
         self.assertEqual(logs, 'Creating tornado application, with the 2 handlers:\n'
@@ -50,7 +50,7 @@ class ManagementCommandTestCase(TestCase):
             call_command('websockets', '--nodjango')
             self.assertTrue(man_start_server.called)
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
-        self.assertIn('"django_websockets.testsettings"\nStarting server on port 8001\n', std.captured)
+        self.assertIn('"django_websockets.tests.settings"\nStarting server on port 8001\n', std.captured)
 
         logs = self.stream.getvalue()
         self.assertEqual(logs, 'Creating tornado application, with the 1 handler:\n'
@@ -63,24 +63,9 @@ class ManagementCommandTestCase(TestCase):
         self.assertTrue(man_start_server.called)
         # avoid messing with versions by only checking beginning and end
         self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
-        self.assertIn('"django_websockets.testsettings"\nStarting server on port 9876\n', std.captured)
+        self.assertIn('"django_websockets.tests.settings"\nStarting server on port 9876\n', std.captured)
 
         logs = self.stream.getvalue()
         self.assertEqual(logs, 'Creating tornado application, with the 2 handlers:\n'
                                '  "/ws/" > django_websockets.handlers.AnonEchoHandler\n'
                                '  ".*" > tornado.web.FallbackHandler\n')
-
-    @patch('django_websockets.management.commands.websockets._start_runserver_process')
-    @patch('django_websockets.management.commands.websockets._start_server')
-    def test_cmd_runserver(self, man_start_server, runserver):
-        with CaptureStd() as std:
-            call_command('websockets', '--runserver')
-        self.assertTrue(man_start_server.called)
-        self.assertTrue(runserver.called)
-        # avoid messing with versions by only checking beginning and end
-        self.assertTrue(std.captured.startswith('\ndjango-websockets version'))
-        self.assertIn('"django_websockets.testsettings"\nStarting server on port 8001\n', std.captured)
-
-        logs = self.stream.getvalue()
-        self.assertEqual(logs, 'Creating tornado application, with the 1 handler:\n'
-                               '  "/ws/" > django_websockets.handlers.AnonEchoHandler\n')

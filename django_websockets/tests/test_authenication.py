@@ -187,8 +187,8 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
         class WSClient(WebSocketClient):
             def on_close(self, code=None, reason=None):
                 test_case.delayed_assertions.extend([
-                    (code, 2001),
-                    (reason, 'permission denied - anonymous users not permitted to connect to this socket'),
+                    (code, 2000),
+                    (reason, 'permission denied - no token supplied'),
                     (len(all_clients.all_clients), 0),
                     (len(all_clients.anon_clients), 0),
                     (len(all_clients.auth_clients), 0),

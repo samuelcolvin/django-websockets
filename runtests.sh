@@ -7,7 +7,7 @@ else
 fi
 django_admin=$(which django-admin.py)
 export ASYNC_TEST_TIMEOUT="1"
-export DJANGO_SETTINGS_MODULE="django_websockets.testsettings"
+export DJANGO_SETTINGS_MODULE="django_websockets.tests.settings"
 export PYTHONPATH=.
 time coverage run --source=django_websockets $django_admin test $test_path
 

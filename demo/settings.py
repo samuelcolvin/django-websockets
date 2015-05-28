@@ -1,5 +1,5 @@
 # to avoid duplication most settings are imported directly from testsettings.
-from django_websockets.testsettings import *
+from django_websockets.tests.settings import *
 
 import os
 BASE_DIR = os.path.dirname(__file__)
