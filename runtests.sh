@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 if [ "$#" -eq 1 ]; then
   test_path="$1"
