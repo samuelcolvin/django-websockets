@@ -1,8 +1,7 @@
 from django_websockets.handlers import AnonSocketHandler, AuthSocketHandler
-from tornado.websocket import WebSocketHandler
 
 
-class AnonEchoHandler(WebSocketHandler):
+class AnonEchoHandler(AnonSocketHandler):
     def on_message(self, data):
         self.write_message(data)
 

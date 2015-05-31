@@ -11,6 +11,7 @@ DEBUG = False
 ROOT_URLCONF = 'urls'
 
 WSGI_APPLICATION = 'wsgi.application'
+ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     'default': {
@@ -18,6 +19,8 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
 ON_HEROKU = 'DYNO' in os.environ
 
 if not ON_HEROKU:
@@ -55,7 +58,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'djws'
         },
@@ -63,7 +66,7 @@ LOGGING = {
     'loggers': {
         'websockets': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': 'DEBUG',
             'propagate': False,
         },
     }

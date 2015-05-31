@@ -1,0 +1,14 @@
+# required for django-websockets
+Django==1.8.2
+tornado==4.1
+colorlog==2.6.0
+
+# used in the demo app for static files
+whitenoise==1.0.6
+
+# required/helpful for running demo & development
+Werkzeug==0.10.4
+django-extensions==1.5.5
+ipython==3.1.0
+coveralls==0.5
+flake8==2.4.1
