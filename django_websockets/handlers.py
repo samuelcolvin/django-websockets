@@ -65,8 +65,9 @@ class AnonSocketHandler(tornado.websocket.WebSocketHandler):
     * allow cross origin requests if DEBUG is true so dev separate servers can be used to run django and tornado ws.
     * store all handlers in AllClients to allow easy communication between different websockets.
     """
-    # user is never used in this class, it's included here for easy filtering of AllClients based on user value
+    # user is always None in this class, it's included here for easy filtering of AllClients based on user value
     user = None
+    # client added is used to indicate if the client has been added to AllClients
     _client_added = False
     _connection_allowed = True
 
@@ -89,7 +90,7 @@ class AnonSocketHandler(tornado.websocket.WebSocketHandler):
         return super(AnonSocketHandler, self).check_origin(origin)
 
     def open(self):
-        logger.debug('new connection, allowed: %r, client added: %r', self._connection_allowed, self._client_added)
+        logger.debug('new connection, allowed: %r', self._connection_allowed)
         if self._connection_allowed:
             all_clients.append(self)
             self._client_added = True

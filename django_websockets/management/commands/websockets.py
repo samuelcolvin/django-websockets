@@ -35,7 +35,9 @@ if not logger.hasHandlers():
 
 def main(serve_django, port, verbosity, **other_options):
     if port is None:
-        port = int(os.getenv('PORT'))
+        port = os.getenv('PORT')
+        if port is not None:
+            port = int(port)
     if port is None:
         port = 8000 if serve_django else 8001
     if verbosity >= 1:
