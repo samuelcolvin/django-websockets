@@ -18,10 +18,12 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+ON_HEROKU = 'DYNO' in os.environ
 
-# to allow large numbers of connections
-import resource
-resource.setrlimit(resource.RLIMIT_NOFILE, (65536, 65536))
+if not ON_HEROKU:
+    # to allow large numbers of connections
+    import resource
+    resource.setrlimit(resource.RLIMIT_NOFILE, (65536, 65536))
 
 WS_HANDLERS = (
     ('/ws/', 'demoapp.ws_handlers.AnonEchoHandler'),
