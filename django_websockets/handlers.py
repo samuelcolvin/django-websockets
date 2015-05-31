@@ -118,8 +118,19 @@ class AuthSocketHandler(AnonSocketHandler):
     """
     _connection_allowed = False
 
+    def _get_ip_address(self):
+        # we have to do this as self.request is pretty flaky about giving up it's attributes
+        # TODO fix or submit issue to tornado
+        request_dict = vars(self.request)
+        x_forwarded_for = request_dict.get('headers', {}).get('X-Forwarded-For')
+        if x_forwarded_for:
+            return x_forwarded_for.split(',')[0]
+        else:
+            return request_dict.get('remote_ip')
+
     def select_subprotocol(self, subprotocols):
-        logger.debug('subprotocols: %r', subprotocols)
+        ip_address = self._get_ip_address()
+        logger.debug('select_subprotocol, subprotocols: %r, ip address: %s', subprotocols, ip_address)
         if len(subprotocols) != 1:
             self.close(1002, 'exactly one sub-protocol should be provided')
             return
@@ -131,10 +142,6 @@ class AuthSocketHandler(AnonSocketHandler):
         if token in {'null', 'anon'}:
             # TODO, is there a better code to use?
             self.close(2001, 'permission denied - anonymous users not permitted to connect to this socket')
-        # we have to do this as self.request is pretty flaky about giving up it's attributes
-        # TODO fix or submit issue to tornado
-        request_dict = vars(self.request)
-        ip_address = request_dict['remote_ip']
         user = check_token_get_user(token, ip_address)
         if not user:
             self.close(2002, 'permission denied - invalid token')
