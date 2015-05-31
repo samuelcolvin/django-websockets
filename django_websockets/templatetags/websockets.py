@@ -11,14 +11,17 @@ register = template.Library()
 logger = logging.getLogger(settings.WS_LOGGER_NAME)
 
 
-def get_ws_url(request):
+def get_ws_url(request, ws_suffix):
     if settings.WS_URL:
         return settings.WS_URL
     prefix = 'wss://' if request.is_secure() else 'ws://'
-    host = request.get_host()
+    host = request.get_host().rstrip('/')
     if settings.WS_PORT:
         host = re.sub(r':\d+$', ':' + str(settings.WS_PORT), host)
-    return prefix + host + settings.WS_URL_PATH
+    ws_suffix = ws_suffix.strip('/')
+    if ws_suffix:
+        ws_suffix += '/'
+    return '%s%s/%s/%s' % (prefix, host, settings.WS_URL_ROOT, ws_suffix)
 
 
 def get_request_ip(request):
@@ -31,7 +34,7 @@ def get_request_ip(request):
 
 
 @register.inclusion_tag('django_websockets/setup_script.html', takes_context=True)
-def djws_setup(context, *args, **kwargs):
+def websocket_info(context, ws_suffix='', **kwargs):
     if 'request' in context:
         request = context['request']
     elif 'view' in context:
@@ -43,7 +46,7 @@ def djws_setup(context, *args, **kwargs):
     if request.user.is_authenticated():
         token = make_token(request.user, get_request_ip(request))
     variables = dict(
-        ws_url=get_ws_url(request),
+        ws_url=get_ws_url(request, ws_suffix),
         token=token,
     )
     setup_ctx = {

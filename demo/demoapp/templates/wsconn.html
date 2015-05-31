@@ -39,7 +39,7 @@
 
 {% block extra_js %}
   {% load websockets %}
-  {% djws_setup %}
+  {% websocket_info ws_url  %}
   {% load staticfiles %}
   <script src="{% static 'js/debug.js' %}"></script>
 {% endblock %}

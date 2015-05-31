@@ -50,10 +50,13 @@ class AllClients(object):
         """
         return list(filterfalse(attrgetter('user'), self._clients))
 
+    @property
+    def status(self):
+        return '%d auth, %d anon, %d total' % (len(self.auth_clients), len(self.anon_clients), len(self._clients))
+
     def __str__(self):
-        return 'AllClients: %d auth, %d anon, %d total' % (len(self.auth_clients),
-                                                           len(self.anon_clients),
-                                                           len(self._clients))
+        return 'AllClients: %s' % self.status
+
 
 # singleton containing list of all clients/handlers connected to this server.
 all_clients = AllClients()

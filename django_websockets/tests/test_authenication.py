@@ -105,7 +105,7 @@ class AnonHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
             def on_close(self, code=None, reason=None):
                 test_case.io_loop.add_callback(test_case.stop)
 
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, 'anon'))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop, 'anon'))
         self.wait()
         self.assertTrue(self.ws_close_properly, 'websocket not closed properly')
         test_case.assertEqual(len(all_clients.all_clients), 0)
@@ -141,7 +141,7 @@ class AnonHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
 
         user = User.objects.create_user('testing', email='testing@example.com')
         token = make_token(user, '127.0.0.1')
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, token))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop, token))
         self.wait()
         self.assertTrue(self.ws_close_properly, 'websocket not closed properly')
         test_case.assertEqual(len(all_clients.all_clients), 0)
@@ -171,7 +171,7 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
                 ])
                 test_case.io_loop.add_callback(test_case.stop)
 
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, 'anon'))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop, 'anon'))
         self.wait()
         test_case.assertEqual(len(all_clients.all_clients), 0)
         test_case.assertEqual(len(all_clients.anon_clients), 0)
@@ -195,7 +195,7 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
                 ])
                 test_case.io_loop.add_callback(test_case.stop)
 
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop))
         self.wait()
         test_case.assertEqual(len(all_clients.all_clients), 0)
         test_case.assertEqual(len(all_clients.anon_clients), 0)
@@ -219,7 +219,7 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
                 ])
                 test_case.io_loop.add_callback(test_case.stop)
 
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, 'this is bad!'))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop, 'this is bad!'))
         self.wait()
         test_case.assertEqual(len(all_clients.all_clients), 0)
         test_case.assertEqual(len(all_clients.anon_clients), 0)
@@ -257,7 +257,7 @@ class AuthHandlerWebSocketTest(AsyncHTTPTestCaseExtra, TestCase):
 
         user = User.objects.create_user('testing', email='testing@example.com')
         token = make_token(user, '127.0.0.1')
-        self.io_loop.add_callback(partial(WSClient, self.get_url('/'), self.io_loop, token))
+        self.io_loop.add_callback(partial(WSClient, self.get_url('/ws/'), self.io_loop, token))
         self.wait()
         self.assertTrue(self.ws_close_properly, 'websocket not closed properly')
         test_case.assertEqual(len(all_clients.all_clients), 0)

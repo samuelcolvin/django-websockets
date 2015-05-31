@@ -6,7 +6,8 @@ BASE_DIR = os.path.dirname(__file__)
 
 INSTALLED_APPS += ('demoapp',)
 
-DEBUG = False
+ON_HEROKU = 'DYNO' in os.environ
+DEBUG = not ON_HEROKU
 
 ROOT_URLCONF = 'urls'
 
@@ -21,16 +22,14 @@ DATABASES = {
 }
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
-ON_HEROKU = 'DYNO' in os.environ
-
 if not ON_HEROKU:
     # to allow large numbers of connections
     import resource
     resource.setrlimit(resource.RLIMIT_NOFILE, (65536, 65536))
 
 WS_HANDLERS = (
-    ('/ws/', 'demoapp.ws_handlers.AnonEchoHandler'),
-    ('/ws/auth', 'demoapp.ws_handlers.AuthEchoHandler'),
+    ('anon', 'demoapp.ws_handlers.AnonEchoHandler'),
+    ('auth', 'demoapp.ws_handlers.AuthEchoHandler'),
 )
 
 LOGGING = {
@@ -66,7 +65,7 @@ LOGGING = {
     'loggers': {
         'websockets': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
     }

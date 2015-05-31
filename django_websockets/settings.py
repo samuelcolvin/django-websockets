@@ -13,14 +13,15 @@ WS_LOGGER_NAME = getattr(settings, 'WS_LOGGER_NAME', 'websockets')
 # URL of websocket connection, if None it's obtained from the domain and path below
 WS_URL = getattr(settings, 'WS_URL', None)
 
-# TODO rename and describe
-WS_URL_PATH = getattr(settings, 'WS_URL_PATH', '/ws/')
+# root for all ws handler urls, gets prepended to urls in WS_HANDLERS and
+# used to generate urls by the djws_setup filter
+WS_URL_ROOT = getattr(settings, 'WS_URL_ROOT', 'ws').strip('/')
 
 # websocket handlers to register with the tornado app. This is how you define your websocket end points
 # the tuple is passed to tornado.web.Application the only change is that fall back handler is added
 # if we're serving django too and the string path references are imported. Doesn't have to be websocket handlers
 # TODO add warning if this hasn't been set
-WS_HANDLERS = getattr(settings, 'WS_HANDLERS', (('/ws/', 'django_websockets.handlers.AnonEchoHandler'),))
+WS_HANDLERS = getattr(settings, 'WS_HANDLERS', (('', 'django_websockets.handlers.AnonEchoHandler'),))
 
 # name of the variable used to expose info to javascript about websockets
 MAIN_JS_VARIABLE = getattr(settings, 'MAIN_JS_VARIABLE', 'djws')

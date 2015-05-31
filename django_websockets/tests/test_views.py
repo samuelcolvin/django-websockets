@@ -7,7 +7,7 @@ from django.template import Template, RequestContext
 
 
 def simple_view(request):
-    t = Template('{% load websockets %}{% djws_setup %}')
+    t = Template('{% load websockets %}{% websocket_info %}')
     c = RequestContext(request, {'request': request})
     return HttpResponse(t.render(c))
 

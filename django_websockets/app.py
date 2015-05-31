@@ -15,6 +15,10 @@ def convert_handler_definition(uri, handler, *args):
     """
     if isinstance(handler, str):
         handler = import_string(handler)
+    uri = uri.strip('/')
+    if uri:
+        uri += '/'
+    uri = '/%s/%s' % (settings.WS_URL_ROOT, uri)
     return (uri, handler) + args
 
 
