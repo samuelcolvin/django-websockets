@@ -14,23 +14,30 @@ ROOT_URLCONF = 'urls'
 WSGI_APPLICATION = 'wsgi.application'
 ALLOWED_HOSTS = ['*']
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
-if not ON_HEROKU:
+if ON_HEROKU:
+    import dj_database_url
+    DATABASES = {'default': dj_database_url.config()}
+else:
     # to allow large numbers of connections
     import resource
     resource.setrlimit(resource.RLIMIT_NOFILE, (65536, 65536))
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
+
 
 WS_HANDLERS = (
     ('anon', 'demoapp.ws_handlers.AnonEchoHandler'),
     ('auth', 'demoapp.ws_handlers.AuthEchoHandler'),
 )
+
+DJWS_DEBUG_LEVEL = os.getenv('DJWS_DEBUG_LEVEL', 'INFO')
 
 LOGGING = {
     'version': 1,
@@ -57,7 +64,7 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': DJWS_DEBUG_LEVEL,
             'class': 'logging.StreamHandler',
             'formatter': 'djws'
         },
@@ -65,7 +72,7 @@ LOGGING = {
     'loggers': {
         'websockets': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': DJWS_DEBUG_LEVEL,
             'propagate': False,
         },
     }

@@ -34,6 +34,10 @@ class AllClients(object):
         """
         return self._clients
 
+    def __iter__(self):
+        for cli in self._clients:
+            yield cli
+
     @property
     def auth_clients(self):
         """

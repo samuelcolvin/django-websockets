@@ -5,3 +5,5 @@ colorlog==2.6.0
 
 # used in the demo app for static files
 whitenoise==1.0.6
+dj-database-url==0.3.0
+psycopg2==2.6

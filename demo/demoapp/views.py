@@ -10,12 +10,16 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         if self.request.user.is_anonymous():
             last_user = User.objects.all().order_by('id').last()
-            user = User.objects.create_user(username='user_%d' % (last_user.id + 1), password='anything')
+            if last_user is None:
+                new_id = 1
+            else:
+                new_id = last_user.id + 1
+            user = User.objects.create_user(username='user_%d' % new_id, password='anything')
             user = authenticate(username=user.username, password='anything')
             login(self.request, user)
             messages.info(self.request, 'Creating you as new user %s and logging you in' % self.request.user)
         kwargs.update(
-            title='django-websockets',
+            title='django-websockets authenticated users',
             ws_url='auth'
         )
         return super(IndexView, self).get_context_data(**kwargs)
@@ -28,7 +32,7 @@ class AnonView(TemplateView):
 
     def get_context_data(self, **kwargs):
         kwargs.update(
-            title='django-websocket debug',
+            title='django-websocket anonymous users',
             ws_url='anon'
         )
         return super(AnonView, self).get_context_data(**kwargs)
