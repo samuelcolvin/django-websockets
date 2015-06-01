@@ -18,9 +18,12 @@ class IndexView(TemplateView):
             user = authenticate(username=user.username, password='anything')
             login(self.request, user)
             messages.info(self.request, 'Creating you as new user %s and logging you in' % self.request.user)
+        else:
+            user = self.request.user
         kwargs.update(
             title='django-websockets authenticated users',
-            ws_url='auth'
+            ws_url='auth',
+            user=user
         )
         return super(IndexView, self).get_context_data(**kwargs)
 

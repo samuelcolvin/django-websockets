@@ -110,6 +110,15 @@ class AnonSocketHandler(tornado.websocket.WebSocketHandler):
         logger.debug('client disconnected, close code: %r, close reason: %r', self.close_code, self.close_reason)
         all_clients.remove(self, not self._client_added)
 
+    def safe_write_message(self, data):
+        """
+        wrapper for write_message which checks the underlying websocket connection is opening before sending
+        message to avoid WebSocketClosedError
+        :param data: data to send
+        """
+        if self.ws_connection is not None:
+            self.write_message(data)
+
 
 class AuthSocketHandler(AnonSocketHandler):
     """
@@ -183,7 +192,7 @@ class AnonEchoHandler(PingPongMixin, AnonSocketHandler):
 
     def on_message(self, data):
         logger.info('received message: %r' % data)
-        self.write_message(data)
+        self.safe_write_message(data)
 
 
 class AuthEchoHandler(PingPongMixin, AuthSocketHandler):
@@ -196,4 +205,4 @@ class AuthEchoHandler(PingPongMixin, AuthSocketHandler):
 
     def on_message(self, data):
         logger.info('received message: %r' % data)
-        self.write_message(data)
+        self.safe_write_message(data)
